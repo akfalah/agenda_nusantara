@@ -78,4 +78,22 @@ class DatabaseHelper {
 
     return Sqflite.firstIntValue(result) ?? 0;
   }
+
+  // Chart
+  static Future<Map<String, int>> getDailyCompletionStats() async {
+    final db = await database;
+    final rows = await db.rawQuery('''
+      SELECT created_at, COUNT(*) AS total
+      FROM tasks
+      WHERE is_done = 1
+      GROUP BY created_at
+      ORDER BY created_at ASC
+    ''');
+
+    final Map<String, int> result = {};
+    for (final row in rows) {
+      result[row['created_at'] as String] = row['total'] as int;
+    }
+    return result;
+  }
 }
